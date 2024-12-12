@@ -81,4 +81,19 @@ class TheMovieDBDatasource extends MovieDatasource {
     final Movie movie = MovieMapper.movieDetailsToEntity(movieDetail);
     return movie;
   }
+  
+  @override
+  Future<List<Movie>> getMovieByTitle(String title) async {
+    if(title.isNotEmpty){
+      final response = await dio.get('/search/movie', 
+        queryParameters: {
+          'query': title
+        }
+      );
+      
+      return _jsonToMovie(response.data);
+    }
+    
+    return [];
+  }
 }

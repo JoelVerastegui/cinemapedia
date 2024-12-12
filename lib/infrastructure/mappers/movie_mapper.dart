@@ -6,7 +6,7 @@ class MovieMapper {
   static Movie theMovieDBToEntity(TheMovieDBMovie movieDB) => Movie(
     adult: movieDB.adult, 
     backdropPath: (movieDB.backdropPath != '')
-      ?  'https://image.imdb.org/t/p/w500${movieDB.backdropPath}'
+      ?  'https://image.tmdb.org/t/p/w500${movieDB.backdropPath}'
       : 'https://sd.keepcalms.com/i-w600/keep-calm-poster-not-found.jpg', 
     genreIds: movieDB.genreIds.map((e) => e.toString()).toList(), 
     id: movieDB.id, 
@@ -15,8 +15,8 @@ class MovieMapper {
     overview: movieDB.overview, 
     popularity: movieDB.popularity, 
     posterPath: (movieDB.posterPath != '')
-      ?  'https://image.imdb.org/t/p/w500${movieDB.posterPath}'
-      : 'no-poster', 
+      ?  'https://image.tmdb.org/t/p/w500${movieDB.posterPath}'
+      : 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQiUqGvs-Wgpbk4a8HcVMjOVeHJ7kiryV12xpX-WwjUty5NwqHlMTm4M1caosM6IYxkW9I&usqp=CAU', 
     releaseDate: movieDB.releaseDate, 
     title: movieDB.title, 
     video: movieDB.video, 
@@ -27,7 +27,7 @@ class MovieMapper {
   static Movie movieDetailsToEntity(MovieDetail movieDB) => Movie(
     adult: movieDB.adult, 
     backdropPath: (movieDB.backdropPath != '')
-      ?  'https://image.imdb.org/t/p/w500${movieDB.backdropPath}'
+      ?  'https://image.tmdb.org/t/p/w500${movieDB.backdropPath}'
       : 'https://sd.keepcalms.com/i-w600/keep-calm-poster-not-found.jpg', 
     genreIds: movieDB.genres.map((e) => e.name).toList(), 
     id: movieDB.id, 
@@ -36,7 +36,7 @@ class MovieMapper {
     overview: movieDB.overview, 
     popularity: movieDB.popularity, 
     posterPath: (movieDB.posterPath != '')
-      ?  'https://image.imdb.org/t/p/w500${movieDB.posterPath}'
+      ?  'https://image.tmdb.org/t/p/w500${movieDB.posterPath}'
       : 'https://sd.keepcalms.com/i-w600/keep-calm-poster-not-found.jpg', 
     releaseDate: movieDB.releaseDate, 
     title: movieDB.title, 
