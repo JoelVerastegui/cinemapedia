@@ -147,7 +147,10 @@ class _CustomMovieTile extends StatelessWidget {
                 child: Image.network(
                   movie.posterPath,
                   fit: BoxFit.cover,
-                  loadingBuilder: (context, child, loadingProgress) => FadeIn(child: child),
+                  loadingBuilder: (context, child, loadingProgress) {
+                    if(loadingProgress != null) return Image.asset('assets/loading.gif');
+                    return FadeIn(child: child);
+                  },
                 ),
               ),
             ),

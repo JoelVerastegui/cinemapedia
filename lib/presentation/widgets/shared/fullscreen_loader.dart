@@ -22,7 +22,11 @@ class FullscreenLoader extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const CircularProgressIndicator(),
+          // const CircularProgressIndicator(),
+          Image.asset(
+            'assets/loading.gif',
+            width: 120.0,
+          ),
           const SizedBox(height: 10),
           StreamBuilder(
             stream: getLoadingMessages(), 

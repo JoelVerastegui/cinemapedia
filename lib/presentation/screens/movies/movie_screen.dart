@@ -1,9 +1,13 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:cinemapedia/domain/entities/actor.dart';
 import 'package:cinemapedia/domain/entities/movie.dart';
+import 'package:cinemapedia/domain/entities/video.dart';
 import 'package:cinemapedia/presentation/providers/providers.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../widgets/widgets.dart';
 
 class MovieScreen extends ConsumerStatefulWidget {
   static const routeName = 'movie_screen';
@@ -25,13 +29,16 @@ class MovieScreenState extends ConsumerState<MovieScreen> {
 
     ref.read(movieInfoProvider.notifier).loadMovie(widget.movieId);
     ref.read(actorsByMovieProvider.notifier).loadActors(widget.movieId);
+    ref.read(videoProvider.notifier).fetchVideos(widget.movieId);
+    ref.read(recommendationMoviesProvider.notifier).fetchRecommendations(widget.movieId);
   }
 
   @override
   Widget build(BuildContext context) {
     final movie = ref.watch(movieInfoProvider)[widget.movieId];
     final actors = ref.watch(actorsByMovieProvider)[widget.movieId];
-    if(movie == null || actors == null) {
+    final videos = ref.watch(videoProvider)[widget.movieId];
+    if(movie == null || actors == null || videos == null) {
       return const Scaffold(
         body: Center(
           child: CircularProgressIndicator(strokeWidth: 2)
@@ -45,7 +52,7 @@ class MovieScreenState extends ConsumerState<MovieScreen> {
         slivers: [
           _CustomSliverAppBar(movie: movie),
           SliverList(delegate: SliverChildBuilderDelegate(
-            (context, index) => _MovieDetails(movie: movie, actors: actors),
+            (context, index) => _MovieDetails(movie: movie, actors: actors, videos: videos),
             childCount: 1
           ))
         ],
@@ -69,8 +76,7 @@ class _CustomSliverAppBar extends ConsumerWidget {
     final size = MediaQuery.of(context).size;
     final isFavorite = ref.watch(isFutureProvider(movie.id));
 
-    return 
-    SliverAppBar(
+    return SliverAppBar(
       backgroundColor: Colors.black,
       expandedHeight: size.height * 0.7,
       foregroundColor: Colors.white,
@@ -92,62 +98,68 @@ class _CustomSliverAppBar extends ConsumerWidget {
           // const Icon(Icons.favorite_border_outlined)
         )
       ],
-      flexibleSpace: 
-      FlexibleSpaceBar(
-        titlePadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-        background: Stack(
-          children: [
-            SizedBox.expand(
-              child: Image.network(
-                movie.posterPath.replaceAll('.imdb.', '.tmdb.'),
-                fit: BoxFit.cover,
-                loadingBuilder: (context, child, loadingProgress) {
-                  if(loadingProgress != null) return const SizedBox();
-
-                  return FadeIn(child: child);
-                },
-              )
+      flexibleSpace: Stack(
+        children: [
+          FlexibleSpaceBar(
+            titlePadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+            background: Stack(
+              children: [
+                SizedBox.expand(
+                  child: Image.network(
+                    movie.posterPath.replaceAll('.imdb.', '.tmdb.'),
+                    fit: BoxFit.cover,
+                    loadingBuilder: (context, child, loadingProgress) {
+                      if(loadingProgress != null) return Image.asset('assets/loading.gif');
+            
+                      return FadeIn(child: child);
+                    },
+                  )
+                ),
+            
+                const _CustomGradient(
+                  begin: Alignment.topLeft,
+                  stops: [0.0, 0.3],
+                  colors: [Colors.black87, Colors.transparent]
+                ),
+            
+                const _CustomGradient(
+                  begin: Alignment.topRight,
+                  end: Alignment.bottomLeft,
+                  stops: [0.0, 0.2],
+                  colors: [Colors.black54, Colors.transparent]
+                )
+              ],
             ),
-
-            const _CustomGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              stops: [0.7, 1.0],
-              colors: [Colors.transparent, Colors.black87]
-            ),
-
-            const _CustomGradient(
-              begin: Alignment.topLeft,
-              stops: [0.0, 0.3],
-              colors: [Colors.black87, Colors.transparent]
-            ),
-
-            const _CustomGradient(
-              begin: Alignment.topRight,
-              end: Alignment.bottomLeft,
-              stops: [0.0, 0.2],
-              colors: [Colors.black54, Colors.transparent]
-            )
-          ],
-        ),
+          ),
+      
+          const _CustomGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            stops: [0.7, 1.0],
+            colors: [Colors.transparent, Colors.black87]
+          ),
+        ],
       ),
     );
   }
 }
 
-class _MovieDetails extends StatelessWidget {
+class _MovieDetails extends ConsumerWidget {
   final Movie movie;
   final List<Actor> actors;
+  final List<Video> videos;
 
   const _MovieDetails({ 
     required this.movie,
-    required this.actors
+    required this.actors,
+    required this.videos
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, ref) {
     final size = MediaQuery.of(context).size;
     final textStyles = Theme.of(context).textTheme;
+    final recommendationMovies = ref.watch(recommendationMoviesProvider);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -181,14 +193,15 @@ class _MovieDetails extends StatelessWidget {
           ),
         ),
 
-        Padding(
+        Container(
+          width: size.width,
           padding: const EdgeInsets.all(8.0),
           child: Wrap(
+            alignment: WrapAlignment.center,
             children: [
               ...movie.genreIds.map((gender) => Container(
                 margin: const EdgeInsets.only(right: 10),
-                child: 
-                Chip(
+                child: Chip(
                   label: Text(gender),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(20)
@@ -201,7 +214,20 @@ class _MovieDetails extends StatelessWidget {
 
         _ActorsByMovie(movieId: movie.id.toString()),
 
-        const SizedBox(height: 50)
+        const SizedBox(height: 20),
+
+        (videos.isNotEmpty) 
+          ? _VideosByMovie(video: videos[0])
+
+          : const SizedBox(),
+        
+        const SizedBox(height: 20),
+
+        MovieHorizontalListview(
+          title: 'Recomendaciones',
+          movies: recommendationMovies['${movie.id}'] ?? [], 
+          loadNextPage: () => ref.read(recommendationMoviesProvider.notifier).fetchRecommendations('${movie.id}')
+        )
       ],
     );
   }
@@ -265,6 +291,54 @@ class _ActorsByMovie extends ConsumerWidget {
             ),
           );
         },),
+    );
+  }
+}
+
+class _VideosByMovie extends StatelessWidget {
+  final Video video;
+
+  const _VideosByMovie({
+    required this.video
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final textStyle = Theme.of(context).textTheme;
+    final colors = Theme.of(context).colorScheme;
+    final controller = YoutubePlayerController(
+      initialVideoId: video.key,
+      flags: const YoutubePlayerFlags(
+          autoPlay: false,
+          mute: false,
+      ),
+    );
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 15.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Videos', style: textStyle.titleLarge!.copyWith(fontWeight: FontWeight.bold) ),
+          Text(video.name, style: textStyle.titleMedium),
+          SizedBox(
+            height: 250,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(30),
+              child: YoutubePlayer(
+                controller: controller,
+                showVideoProgressIndicator: true,
+                progressIndicatorColor: colors.primary,
+                progressColors: ProgressBarColors(
+                  playedColor: colors.primary,
+                  handleColor: colors.secondary,
+                ),
+                onReady: () {},
+              ),
+            )
+          )
+        ],
+      ),
     );
   }
 }

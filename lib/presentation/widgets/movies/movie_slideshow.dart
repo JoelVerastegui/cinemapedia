@@ -2,6 +2,7 @@ import 'package:animate_do/animate_do.dart';
 import 'package:card_swiper/card_swiper.dart';
 import 'package:cinemapedia/domain/entities/movie.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class MovieSlideshow extends StatelessWidget {
   final List<Movie> movies;
@@ -59,18 +60,21 @@ class _Slide extends StatelessWidget {
         decoration: decoration,
         child: ClipRRect(
           borderRadius: BorderRadius.circular(20),
-          child: Image.network(
-            movie.backdropPath.replaceAll('.imdb.', '.tmdb.'),
-            fit: BoxFit.cover,
-            loadingBuilder: (context, child, loadingProgress) {
-              if(loadingProgress != null) {
-                return const DecoratedBox(
-                  decoration: BoxDecoration(color: Colors.black12)
-                );
-              }
-
-              return FadeIn(child: child);
-            },
+          child: GestureDetector(
+            onTap: () => context.push('/home/0/movie/${movie.id}'),
+            child: Image.network(
+              movie.backdropPath.replaceAll('.imdb.', '.tmdb.'),
+              fit: BoxFit.cover,
+              loadingBuilder: (context, child, loadingProgress) {
+                if(loadingProgress != null) {
+                  return const DecoratedBox(
+                    decoration: BoxDecoration(color: Colors.black12)
+                  );
+                }
+            
+                return FadeIn(child: child);
+              },
+            ),
           )
         )
       ),

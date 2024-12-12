@@ -1,11 +1,20 @@
 import 'package:flutter/material.dart';
 
 class AppTheme {
-  AppTheme();
+  final bool isDarkActive;
+  AppTheme({
+    this.isDarkActive = false
+  });
 
   ThemeData getTheme() => ThemeData(
     useMaterial3: true,
-    brightness: Brightness.light,
-    colorSchemeSeed: const Color.fromARGB(255, 73, 0, 230)
+    brightness: isDarkActive ? Brightness.dark : Brightness.light,
+    colorSchemeSeed: const Color.fromARGB(0, 39, 40, 34)
+  );
+
+  AppTheme copyWith({
+    bool isDarkActive = false
+  }) => AppTheme(
+    isDarkActive: isDarkActive
   );
 }

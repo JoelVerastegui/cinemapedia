@@ -28,6 +28,10 @@ class CustomAppbar extends ConsumerWidget {
               Text('Cinemapedia', style: titleStyle),
               const Spacer(),
               IconButton(
+                onPressed: () => ref.read(themeProvider.notifier).toggleDarkMode(), 
+                icon: const Icon(Icons.brightness_4)
+              ),
+              IconButton(
                 icon: const Icon(Icons.search_outlined),
                 onPressed: () {
                   final searchMovies = ref.read(searchMoviesProvider);

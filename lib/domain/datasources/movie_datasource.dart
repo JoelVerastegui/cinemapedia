@@ -12,4 +12,6 @@ abstract class MovieDatasource {
   Future<Movie> getMovieById(String id);
 
   Future<List<Movie>> getMovieByTitle(String title);
+
+  Future<List<Movie>> getRecommendationsByMovie(String movieId);
 }
