@@ -45,6 +45,8 @@ class CustomAppbar extends ConsumerWidget {
                       searchMovies: ref.read(searchMoviesProvider.notifier).searchMoviesByTitle
                     )
                   ).then((value) {
+                    if (!context.mounted) return;
+
                     final movie = value;
                     
                     if(movie != null) {

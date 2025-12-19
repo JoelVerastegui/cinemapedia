@@ -2,9 +2,11 @@ import 'package:cinemapedia/config/router/app_router.dart';
 import 'package:cinemapedia/presentation/providers/providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 Future<void> main() async {
+  FlutterNativeSplash.preserve(widgetsBinding: WidgetsFlutterBinding.ensureInitialized());
   await dotenv.load(fileName: '.env');
   runApp(const ProviderScope(child: MainApp()));
 }

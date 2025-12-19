@@ -9,3 +9,24 @@ A new Flutter project.
 ```
 flutter pub run build_runner build
 ```
+
+# Prod
+To change app package name
+```
+dart run change_app_package_name:main com.new.package.name
+```
+
+To change app icon
+```
+dart run flutter_launcher_icons
+```
+
+To change splash background color
+´´´
+dart run flutter_native_splash:create
+´´´
+
+Android AAB
+´´´
+flutter build appbundle
+´´´
